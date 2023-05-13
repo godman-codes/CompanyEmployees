@@ -21,7 +21,11 @@ builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureSqlContext(builder.Configuration);
 
 
-builder.Services.AddControllers();
+// becuse normal convention of having controller in the main project was not followed 
+// we have to point the progrqam file to where it can find the controller and that is in 
+// our presentation project without the our api won't work
+builder.Services.AddControllers()
+    .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();
 

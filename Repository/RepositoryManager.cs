@@ -9,6 +9,9 @@ namespace Repository
 {
     public class RepositoryManager : IRepositoryManager
     {
+        // what this class does is when return the db context when its needed 
+        // so when the repository.company is called it will retrn the iComapnyRepository 
+        // same as for employees so you
         private readonly RepositoryContext _repositoryContext;
         private readonly Lazy<ICompanyRepository> _companyRepository;
         private readonly Lazy<IEmployeeRepository> _employeeRepository;
