@@ -44,5 +44,6 @@ namespace CompanyEmployees.Extensions
             services.AddDbContext<RepositoryContext>(opts =>
             opts.UseSqlServer(configuration.GetConnectionString("sqlConnection")));
 
+
     }
 }
