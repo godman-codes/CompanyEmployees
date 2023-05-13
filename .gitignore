@@ -366,3 +366,4 @@ FodyWeavers.xsd
 /CompanyEmployees/appsettings.Production.json
 /CompanyEmployees/nlog.Development.config
 /CompanyEmployees/nlog.Production.config
+/CompanyEmployees/internal_logs/internallog.txt
