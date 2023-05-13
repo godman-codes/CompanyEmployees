@@ -19,7 +19,7 @@ builder.Services.ConfigureServiceManager();
 // registering sql and passing it the iconfig class to
 // get the conn string
 builder.Services.ConfigureSqlContext(builder.Configuration);
-
+builder.Services.AddAutoMapper(typeof(Program));
 
 // becuse normal convention of having controller in the main project was not followed 
 // we have to point the progrqam file to where it can find the controller and that is in 
