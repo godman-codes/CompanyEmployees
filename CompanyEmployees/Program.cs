@@ -34,6 +34,8 @@ builder.Services.AddControllers(config =>
     config.ReturnHttpNotAcceptable = true;
 })
     .AddXmlDataContractSerializerFormatters()
+    // custom csv formatter
+    .AddCustomCSVFormatter()
     .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();
