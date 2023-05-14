@@ -11,6 +11,7 @@ namespace CompanyEmployees.Presentation.Controllers
 {
 
     [Route("api/companies/{companyId}/employees")]
+    [ApiController]
     public class EmployeeController : ControllerBase
     {
         private readonly IServiceManager _service;

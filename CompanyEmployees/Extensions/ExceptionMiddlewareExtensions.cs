@@ -9,32 +9,40 @@ namespace CompanyEmployees.Extensions
     public static class ExceptionMiddlewareExtensions
     {
         public static void ConfigureExceptionHandler(this WebApplication app,
-            ILoggerManager logger) 
+            ILoggerManager logger)
         {
             app.UseExceptionHandler(appError =>
             {
                 appError.Run(async context =>
                 {
+                    // Set the response content type to JSON
                     context.Response.ContentType = "application/json";
+
+                    // Get the exception handler feature from the current context
                     var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
-                    if (contextFeature != null) 
+                    if (contextFeature != null)
                     {
+                        // Set the response status code based on the type of error
                         context.Response.StatusCode = contextFeature.Error switch
-                        { 
-                            // use the switch statement to return the appropriate 
-                            // error status code
+                        {
+                            // Use the switch statement to return the appropriate error status code
                             NotFoundException => StatusCodes.Status404NotFound,
-                            _ => StatusCodes.Status500InternalServerError 
+                            BadRequestException => StatusCodes.Status400BadRequest,
+                            _ => StatusCodes.Status500InternalServerError
                         };
+
+                        // Log the error message
                         logger.LogError($"Something went wrong: {contextFeature.Error}");
-                        await context.Response.WriteAsync(new ErrorDetails() 
+
+                        // Write the error details as a JSON response
+                        await context.Response.WriteAsync(new ErrorDetails()
                         {
                             StatusCode = context.Response.StatusCode,
                             Message = contextFeature.Error.Message,
-                        }.ToString()); 
-                    } 
-                }); 
-            }); 
+                        }.ToString());
+                    }
+                });
+            });
         }
     }
 }
