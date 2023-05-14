@@ -13,6 +13,11 @@ namespace Repository
         public CompanyRepository(RepositoryContext repositoryContext)
             : base(repositoryContext) { }
 
+        public void CreateCompany(Company company)
+        {
+            Create(company);
+        }
+
         public IEnumerable<Company> GetAllCompanies(bool trackChanges)
         {
             return FindAll(trackChanges)
@@ -24,5 +29,6 @@ namespace Repository
             return FindByCondition(c => c.Id.Equals(companyId), trackchanges)
                 .SingleOrDefault();
         }
+
     }
 }

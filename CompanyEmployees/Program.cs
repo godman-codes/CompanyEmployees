@@ -1,6 +1,7 @@
 using CompanyEmployees.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
+using Microsoft.AspNetCore.Mvc;
 using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -21,6 +22,13 @@ builder.Services.ConfigureServiceManager();
 // get the conn string
 builder.Services.ConfigureSqlContext(builder.Configuration);
 builder.Services.AddAutoMapper(typeof(Program));
+builder.Services.Configure<ApiBehaviorOptions>(options =>
+{ 
+    // this will overwrite the behavior of apicontroller decorator on our controller class
+    // when returning modelstate errors for emty from body parameters
+    // beacuse we want to specify our own custom error handling model
+    options.SuppressModelStateInvalidFilter = true; 
+});
 
 // becuse normal convention of having controller in the main project was not followed 
 // we have to point the progrqam file to where it can find the controller and that is in 
