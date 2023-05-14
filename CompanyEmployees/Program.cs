@@ -29,6 +29,9 @@ builder.Services.AddControllers(config =>
 {
     // configing the services controller to return xml or text 
     config.RespectBrowserAcceptHeader = true;
+    // configuring the service controller to return un accepted for
+    // unrecognised format 
+    config.ReturnHttpNotAcceptable = true;
 })
     .AddXmlDataContractSerializerFormatters()
     .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
