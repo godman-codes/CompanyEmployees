@@ -25,7 +25,12 @@ builder.Services.AddAutoMapper(typeof(Program));
 // becuse normal convention of having controller in the main project was not followed 
 // we have to point the progrqam file to where it can find the controller and that is in 
 // our presentation project without the our api won't work
-builder.Services.AddControllers()
+builder.Services.AddControllers(config =>
+{
+    // configing the services controller to return xml or text 
+    config.RespectBrowserAcceptHeader = true;
+})
+    .AddXmlDataContractSerializerFormatters()
     .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();
