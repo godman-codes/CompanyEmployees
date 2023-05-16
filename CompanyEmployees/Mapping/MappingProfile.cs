@@ -15,7 +15,15 @@ namespace CompanyEmployees.Mapping
             CreateMap<Employee, EmployeeDto>();
             CreateMap<CompanyForCreationDto, Company>();
             CreateMap<EmployeeForCreationDto, Employee>();
-            
+            //CreateMap<EmployeeForUpdateDto, Employee>()
+            //    // this mapping allows you to pass in a json of ony the prperty 
+            //    // you want to update 
+            //    .ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<CompanyForUpdateDto, Company>();
+               //.ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
+            CreateMap<EmployeeForUpdateDto, Employee>().ReverseMap();
+            //CreateMap<CompanyForUpdateDto, Company>()
+
         }
     }
 }

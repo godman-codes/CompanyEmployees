@@ -2,6 +2,8 @@ using CompanyEmployees.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
 using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,6 +34,20 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
 });
 
 
+NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
+    // By adding a method like this in the Program class,
+    // we are creating a local function. This function configures
+    // support for JSON Patch using Newtonsoft.Json while leaving
+    // the other formatters unchanged.
+    new ServiceCollection()
+    .AddLogging()
+    .AddMvc()
+    .AddNewtonsoftJson()
+    .Services
+    .BuildServiceProvider()
+    .GetRequiredService<IOptions<MvcOptions>>().
+    Value.InputFormatters.OfType<NewtonsoftJsonPatchInputFormatter>().First();
+
 // becuse normal convention of having controller in the main project was not followed 
 // we have to point the progrqam file to where it can find the controller and that is in 
 // our presentation project without the our api won't work
@@ -42,6 +58,7 @@ builder.Services.AddControllers(config =>
     // configuring the service controller to return un accepted for
     // unrecognised format 
     config.ReturnHttpNotAcceptable = true;
+    config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
 })
     .AddXmlDataContractSerializerFormatters()
     // custom csv formatter
