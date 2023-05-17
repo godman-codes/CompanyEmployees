@@ -1,3 +1,5 @@
+// Required namespaces
+using CompanyEmployees.Presentation.ActionFilters;
 using CompanyEmployees.Extensions;
 using Contracts;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -8,31 +10,42 @@ using NLog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// get the Nlog configuration class and get the on the correct one based on 
-// based on the current environment 
-LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(),
-    $"/nlog.{builder.Environment.EnvironmentName}.config"));
+// Get the NLog configuration class and load the appropriate configuration based on the current environment.
+LogManager.LoadConfiguration(string.Concat(Directory.GetCurrentDirectory(), $"/nlog.{builder.Environment.EnvironmentName}.config"));
 
 // Add services to the container.
 
+// Configure Cross-Origin Resource Sharing (CORS).
 builder.Services.ConfigureCors();
+
+// Configure IIS Integration.
 builder.Services.ConfigureIISIntegration();
+
+// Configure Logger Service.
 builder.Services.ConfigureLoggerService();
+
+// Configure Repository Manager.
 builder.Services.ConfigureRepositoryManager();
+
+// Configure Service Manager.
 builder.Services.ConfigureServiceManager();
-// registering sql and passing it the iconfig class to
-// get the conn string
+
+// Configure SQL Context and pass it the IConfiguration class to get the connection string.
 builder.Services.ConfigureSqlContext(builder.Configuration);
+
+// Add AutoMapper.
 builder.Services.AddAutoMapper(typeof(Program));
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
-    // this will overwrite the behavior of apicontroller decorator on our controller class
-    // when returning modelstate errors for emty from body parameters
-    // beacuse we want to specify our own custom error handling model
+    // This will overwrite the behavior of the ApiController decorator on our controller class
+    // when returning ModelState errors for empty [FromBody] parameters.
+    // We want to specify our own custom error handling model.
     options.SuppressModelStateInvalidFilter = true;
 });
 
+// Add ValidationFilterAttribute as a scoped service.
+builder.Services.AddScoped<ValidationFilterAttribute>();
 
 NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
     // By adding a method like this in the Program class,
@@ -45,30 +58,34 @@ NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
     .AddNewtonsoftJson()
     .Services
     .BuildServiceProvider()
-    .GetRequiredService<IOptions<MvcOptions>>().
-    Value.InputFormatters.OfType<NewtonsoftJsonPatchInputFormatter>().First();
+    .GetRequiredService<IOptions<MvcOptions>>()
+    .Value
+    .InputFormatters
+    .OfType<NewtonsoftJsonPatchInputFormatter>()
+    .First();
 
-// becuse normal convention of having controller in the main project was not followed 
-// we have to point the progrqam file to where it can find the controller and that is in 
-// our presentation project without the our api won't work
+// Because the normal convention of having controllers in the main project was not followed, 
+// we have to point the Program file to where it can find the controllers, which is in 
+// our presentation project. Without this, our API won't work.
 builder.Services.AddControllers(config =>
 {
-    // configing the services controller to return xml or text 
+    // Configure the services controller to return XML or text.
     config.RespectBrowserAcceptHeader = true;
-    // configuring the service controller to return un accepted for
-    // unrecognised format 
+
+    // Configure the services controller to return 406 Not Acceptable for unrecognised format.
     config.ReturnHttpNotAcceptable = true;
+
     config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
 })
     .AddXmlDataContractSerializerFormatters()
-    // custom csv formatter
+    // Add custom CSV formatter.
     .AddCustomCSVFormatter()
     .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 var app = builder.Build();
 
-// this must be done before the builder.Build method 
-// reference UACWA pg 72
+// This must be done before the builder.Build method.
+// Reference UACWA pg 72.
 var logger = app.Services.GetRequiredService<ILoggerManager>();
 app.ConfigureExceptionHandler(logger);
 
@@ -80,6 +97,7 @@ if (app.Environment.IsProduction())
 app.UseHttpsRedirection();
 
 app.UseStaticFiles();
+
 app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.All
@@ -92,5 +110,3 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
-
-
