@@ -33,11 +33,10 @@ namespace CompanyEmployees.Presentation.ActionFilters
                 context.Result = new UnprocessableEntityObjectResult(context.ModelState);
         }
 
-        // Executes after the action method is invoked
+        //Executes after the action method is invoked
         public void OnActionExecuted(ActionExecutedContext context)
         {
             // This method is not implemented
-            throw new NotImplementedException();
         }
     }
 }
