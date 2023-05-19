@@ -1,5 +1,5 @@
 ﻿using Contracts;
-
+using Entities.Models;
 using System.Dynamic;
 
 using System.Reflection;
@@ -17,14 +17,14 @@ namespace Service.DataShaping
             Properties = typeof(T).GetProperties(BindingFlags.Public |
                 BindingFlags.Instance);
         }
-        public IEnumerable<ExpandoObject> ShapedData(IEnumerable<T> entities, 
+        public IEnumerable<Entity> ShapedData(IEnumerable<T> entities, 
             string fieldsString)
         {
             var requiredProperties = GetRequiredProperties(fieldsString);
             return FetchData(entities, requiredProperties);
         }
 
-        public ExpandoObject ShapedData(T entity, string fieldsString)
+        public Entity ShapedData(T entity, string fieldsString)
         {
             var requiredProperties = GetRequiredProperties(fieldsString);
             return FetchDataForEntity(entity, requiredProperties);
@@ -60,10 +60,10 @@ namespace Service.DataShaping
             }
             return requiredProperties;
         }
-        private IEnumerable<ExpandoObject> FetchData(IEnumerable<T> entities,
+        private IEnumerable<Entity> FetchData(IEnumerable<T> entities,
             IEnumerable<PropertyInfo> requiredProperties)
         {
-            var shapedData = new List<ExpandoObject>();
+            var shapedData = new List<Entity>();
 
             
             foreach (var entity in entities)
@@ -76,10 +76,10 @@ namespace Service.DataShaping
             return shapedData;
         }
 
-        private ExpandoObject FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
+        private Entity FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
         {
             // new object with dynamic properties
-            var shapedObject = new ExpandoObject();
+            var shapedObject = new Entity();
 
             // loop through the properties to return 
             foreach (var property in requiredProperties)
