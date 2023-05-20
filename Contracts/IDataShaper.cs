@@ -5,7 +5,7 @@ namespace Contracts
 {
     public interface IDataShaper<T>
     {
-        IEnumerable<Entity> ShapedData(IEnumerable<T> entities, string fieldsString);
-        Entity ShapedData(T entity, string fieldsString);
+        IEnumerable<ShapedEntity> ShapedData(IEnumerable<T> entities, string fieldsString);
+        ShapedEntity ShapedData(T entity, string fieldsString);
     }
 }

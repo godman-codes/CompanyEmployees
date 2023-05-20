@@ -17,14 +17,14 @@ namespace Service.DataShaping
             Properties = typeof(T).GetProperties(BindingFlags.Public |
                 BindingFlags.Instance);
         }
-        public IEnumerable<Entity> ShapedData(IEnumerable<T> entities, 
+        public IEnumerable<ShapedEntity> ShapedData(IEnumerable<T> entities, 
             string fieldsString)
         {
             var requiredProperties = GetRequiredProperties(fieldsString);
             return FetchData(entities, requiredProperties);
         }
 
-        public Entity ShapedData(T entity, string fieldsString)
+        public ShapedEntity ShapedData(T entity, string fieldsString)
         {
             var requiredProperties = GetRequiredProperties(fieldsString);
             return FetchDataForEntity(entity, requiredProperties);
@@ -60,10 +60,10 @@ namespace Service.DataShaping
             }
             return requiredProperties;
         }
-        private IEnumerable<Entity> FetchData(IEnumerable<T> entities,
+        private IEnumerable<ShapedEntity> FetchData(IEnumerable<T> entities,
             IEnumerable<PropertyInfo> requiredProperties)
         {
-            var shapedData = new List<Entity>();
+            var shapedData = new List<ShapedEntity>();
 
             
             foreach (var entity in entities)
@@ -76,10 +76,10 @@ namespace Service.DataShaping
             return shapedData;
         }
 
-        private Entity FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
+        private ShapedEntity FetchDataForEntity(T entity, IEnumerable<PropertyInfo> requiredProperties)
         {
             // new object with dynamic properties
-            var shapedObject = new Entity();
+            var shapedObject = new ShapedEntity();
 
             // loop through the properties to return 
             foreach (var property in requiredProperties)
@@ -87,8 +87,12 @@ namespace Service.DataShaping
                 // get the value of the wanted property in the entity object 
                 var objectPropertyValue = property.GetValue(entity);
                 // add the property name and value to the dynamic object 
-                shapedObject.TryAdd(property.Name, objectPropertyValue);
+                shapedObject.Entity.TryAdd(property.Name, objectPropertyValue);
             }
+            // get the property of Id from the model object
+            var objectProperty = entity.GetType().GetProperty("Id");
+            // assing the value of Id into the shaped object.id
+            shapedObject.Id = (Guid)objectProperty.GetValue(entity);
             return shapedObject;
 
         }
