@@ -1,5 +1,7 @@
 ﻿using Contracts;
 using LoggerService;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Repository;
 using Service;
@@ -48,5 +50,38 @@ namespace CompanyEmployees.Extensions
         public static IMvcBuilder AddCustomCSVFormatter(this IMvcBuilder builder) =>
             builder.AddMvcOptions(config =>
             config.OutputFormatters.Add(new CsvOutputFormatter()));
+
+        public static void AddCustomMediaTypes(this IServiceCollection services)
+        {
+            services.Configure<MvcOptions>(config =>
+            {
+                // Retrieving the SystemTextJsonOutputFormatter from the configured output formatters
+                var systemTextJsonOutputFormatter = config.OutputFormatters
+                    .OfType<SystemTextJsonOutputFormatter>()?
+                    .FirstOrDefault();
+
+                // Checking if the SystemTextJsonOutputFormatter is found
+                if (systemTextJsonOutputFormatter != null)
+                {
+                    // Adding a custom media type to the supported media types of SystemTextJsonOutputFormatter
+                    systemTextJsonOutputFormatter.SupportedMediaTypes
+                        .Add("application/vnd.codemaze.hateoas+json");
+                }
+
+                // Retrieving the XmlDataContractSerializerOutputFormatter from the configured output formatters
+                var xmlOutputFormatter = config.OutputFormatters
+                    .OfType<XmlDataContractSerializerOutputFormatter>()?
+                    .FirstOrDefault();
+
+                // Checking if the XmlDataContractSerializerOutputFormatter is found
+                if (xmlOutputFormatter != null)
+                {
+                    // Adding a custom media type to the supported media types of XmlDataContractSerializerOutputFormatter
+                    xmlOutputFormatter.SupportedMediaTypes
+                        .Add("application/vnd.codemaze.hateoas+xml");
+                }
+            });
+        }
+
     }
 }

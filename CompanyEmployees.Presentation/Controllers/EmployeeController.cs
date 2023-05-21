@@ -1,5 +1,7 @@
 ﻿using CompanyEmployees.Presentation.ActionFilters;
 using CompanyEmployees.Presentation.Helper;
+using Entities.LinkModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.JsonPatch;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -28,16 +30,22 @@ namespace CompanyEmployees.Presentation.Controllers
 
         // GET: api/companies/{companyId}/employees
         [HttpGet]
+        [ServiceFilter(typeof(ValidateMediaTypeAttribute))]
         public async Task<IActionResult> GetEmployeesForCompany(Guid companyId, [FromQuery] EmployeeParameters employeeParameters)
         {
             // Retrieve employees for a specific company
             //var employees = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
             //var response = PaginationHelper.CreatePaginatedResponse(Request, employees, employeeParameters.PageNumber, employeeParameters.PageSize);
-            var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, employeeParameters, trackChanges: false);
+
+            var linkParams = new LinkParameters(employeeParameters, HttpContext);
+            var pagedResult = await _service.EmployeeService.GetEmployeesAsync(companyId, linkParams, trackChanges: false);
             Response.Headers.Add("X-Pagination", JsonSerializer.Serialize(pagedResult.metaData));
-            return Ok(pagedResult.employees);
+            //return Ok(pagedResult.employees);
             //return Ok(employees);
             //return new HttpResponseMessageCustom(response);
+            JsonSerializer.Serialize(pagedResult.metaData);
+            return pagedResult.linkResponse.HasLinks ? Ok(pagedResult.linkResponse.LinkedEntities) :
+                Ok(pagedResult.linkResponse.ShapedEntities);
         }
 
         // GET: api/companies/{companyId}/employees/{id}

@@ -20,6 +20,7 @@ namespace CompanyEmployees.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetCompanies()
         {
+            Console.WriteLine(HttpContext);
             var companies = await _service.CompanyService.GetAllCompaniesAsync(trackChanges: false);
             return Ok(companies);
         }

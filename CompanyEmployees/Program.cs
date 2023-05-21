@@ -9,6 +9,7 @@ using Microsoft.Extensions.Options;
 using NLog;
 using Service.DataShaping;
 using Shared.DataTransferObjects;
+using CompanyEmployees.Utility;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -26,18 +27,22 @@ builder.Services.ConfigureIISIntegration();
 // Configure Logger Service.
 builder.Services.ConfigureLoggerService();
 
-// Configure Repository Manager.
-builder.Services.ConfigureRepositoryManager();
-
-// Configure Service Manager.
-builder.Services.ConfigureServiceManager();
-builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
-
 // Configure SQL Context and pass it the IConfiguration class to get the connection string.
 builder.Services.ConfigureSqlContext(builder.Configuration);
+// Configure Repository Manager.
+builder.Services.ConfigureRepositoryManager(); 
 
 // Add AutoMapper.
 builder.Services.AddAutoMapper(typeof(Program));
+// Add ValidationFilterAttribute as a scoped service.
+builder.Services.AddScoped<ValidationFilterAttribute>();
+builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
+// Configure Service Manager.
+builder.Services.ConfigureServiceManager();
+
+
+builder.Services.AddScoped<ValidateMediaTypeAttribute>();
+builder.Services.AddScoped<IEmployeeLinks, EmployeeLinks>();
 
 builder.Services.Configure<ApiBehaviorOptions>(options =>
 {
@@ -47,8 +52,7 @@ builder.Services.Configure<ApiBehaviorOptions>(options =>
     options.SuppressModelStateInvalidFilter = true;
 });
 
-// Add ValidationFilterAttribute as a scoped service.
-builder.Services.AddScoped<ValidationFilterAttribute>();
+// valid the accept headers
 
 NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
     // By adding a method like this in the Program class,
@@ -85,6 +89,7 @@ builder.Services.AddControllers(config =>
     .AddCustomCSVFormatter()
     .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
+builder.Services.AddCustomMediaTypes();
 var app = builder.Build();
 
 // This must be done before the builder.Build method.
@@ -96,6 +101,7 @@ if (app.Environment.IsProduction())
     app.UseHsts();
 
 // Configure the HTTP request pipeline.
+
 
 app.UseHttpsRedirection();
 
