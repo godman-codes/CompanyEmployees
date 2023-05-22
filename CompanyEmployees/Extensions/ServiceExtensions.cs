@@ -8,6 +8,7 @@ using Service;
 using Service.Contracts;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using CompanyEmployees.Presentation.Controllers;
+using Marvin.Cache.Headers;
 
 namespace CompanyEmployees.Extensions
 {
@@ -107,5 +108,21 @@ namespace CompanyEmployees.Extensions
         // caching configuration
         public static void ConfigureResponseCaching(this IServiceCollection services) =>
             services.AddResponseCaching();
+
+        // cache validation with marvin.cache.headers
+        public static void ConfigureHttpCacheHeaders(this IServiceCollection services) =>
+            services.AddHttpCacheHeaders(
+                // NOTE: configuration on action level will overide the configuration
+                // on the controller level which will overide config on the global level
+                (expirationOpt) =>
+                {
+                    expirationOpt.MaxAge = 200;
+                    expirationOpt.CacheLocation = CacheLocation.Private;
+                },
+                (validationOpt) =>
+                {
+                    validationOpt.MustRevalidate = true;
+                }
+                );
     }
 }

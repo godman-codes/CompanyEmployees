@@ -43,6 +43,8 @@ builder.Services.ConfigureServiceManager();
 builder.Services.ConfigureVersioning();
 // caching
 builder.Services.ConfigureResponseCaching();
+// caching validation
+builder.Services.ConfigureHttpCacheHeaders();
 
 
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
@@ -118,7 +120,10 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseCors("CorsPolicy");
+// cache config cache store
 app.UseResponseCaching();
+// cache validation
+app.UseHttpCacheHeaders();
 
 app.UseAuthorization();
 
