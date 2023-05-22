@@ -39,6 +39,7 @@ builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 // Configure Service Manager.
 builder.Services.ConfigureServiceManager();
+builder.Services.ConfigureVersioning();
 
 
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();

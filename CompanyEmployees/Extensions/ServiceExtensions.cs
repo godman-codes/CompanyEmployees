@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Repository;
 using Service;
 using Service.Contracts;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace CompanyEmployees.Extensions
 {
@@ -66,6 +67,8 @@ namespace CompanyEmployees.Extensions
                     // Adding a custom media type to the supported media types of SystemTextJsonOutputFormatter
                     systemTextJsonOutputFormatter.SupportedMediaTypes
                         .Add("application/vnd.codemaze.hateoas+json");
+                    systemTextJsonOutputFormatter.SupportedMediaTypes
+                    .Add("application/vnd.codemaze.apiroot+json");
                 }
 
                 // Retrieving the XmlDataContractSerializerOutputFormatter from the configured output formatters
@@ -79,9 +82,20 @@ namespace CompanyEmployees.Extensions
                     // Adding a custom media type to the supported media types of XmlDataContractSerializerOutputFormatter
                     xmlOutputFormatter.SupportedMediaTypes
                         .Add("application/vnd.codemaze.hateoas+xml");
+                    xmlOutputFormatter.SupportedMediaTypes.Add("application/vnd.codemaze.apiroot+xml");
                 }
             });
         }
-
+        public static void ConfigureVersioning(this IServiceCollection services)
+        {
+            // version controller
+            services.AddApiVersioning(opt => 
+            {
+                opt.ReportApiVersions = true;
+                opt.AssumeDefaultVersionWhenUnspecified = true;
+                opt.DefaultApiVersion = new ApiVersion(1, 0);
+                opt.ApiVersionReader = new HeaderApiVersionReader("api-version");
+            });
+        }
     }
 }
