@@ -7,6 +7,7 @@ using Repository;
 using Service;
 using Service.Contracts;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using CompanyEmployees.Presentation.Controllers;
 
 namespace CompanyEmployees.Extensions
 {
@@ -95,7 +96,16 @@ namespace CompanyEmployees.Extensions
                 opt.AssumeDefaultVersionWhenUnspecified = true;
                 opt.DefaultApiVersion = new ApiVersion(1, 0);
                 opt.ApiVersionReader = new HeaderApiVersionReader("api-version");
+                // to do this you can remove the apiversion decorator on the route
+                //opt.Conventions.Controller<CompanyController>()
+                //.HasApiVersion(new ApiVersion(1, 0));
+                //opt.Conventions.Controller<CompaniesV2Controller>()
+                //.HasDeprecatedApiVersion(new ApiVersion(2, 0));
             });
         }
+
+        // caching configuration
+        public static void ConfigureResponseCaching(this IServiceCollection services) =>
+            services.AddResponseCaching();
     }
 }

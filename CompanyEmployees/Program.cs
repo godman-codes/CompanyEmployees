@@ -39,7 +39,10 @@ builder.Services.AddScoped<ValidationFilterAttribute>();
 builder.Services.AddScoped<IDataShaper<EmployeeDto>, DataShaper<EmployeeDto>>();
 // Configure Service Manager.
 builder.Services.ConfigureServiceManager();
+// versioning
 builder.Services.ConfigureVersioning();
+// caching
+builder.Services.ConfigureResponseCaching();
 
 
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
@@ -84,6 +87,7 @@ builder.Services.AddControllers(config =>
     config.ReturnHttpNotAcceptable = true;
 
     config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
+    config.CacheProfiles.Add("120SecondsDuration", new CacheProfile { Duration = 120 });
 })
     .AddXmlDataContractSerializerFormatters()
     // Add custom CSV formatter.
@@ -114,6 +118,7 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 });
 
 app.UseCors("CorsPolicy");
+app.UseResponseCaching();
 
 app.UseAuthorization();
 
