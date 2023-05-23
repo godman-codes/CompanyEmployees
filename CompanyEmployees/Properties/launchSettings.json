@@ -5,7 +5,7 @@
       "launchUrl": "weatherforecast",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "SECRET": "CodeMazeSecretKey"
+        "SECRET": "ngQR36zOkO3KvJK4tgIiJm72EcIgQcosy25HVJN2HVYU5FS5KlOmVS3zpmUh4uef30ccC8Wuot8JIzsl3pNdr5DUZFFZwXZQiCgW"
       },
       "dotnetRunMessages": true,
       "applicationUrl": "https://localhost:5000;http://localhost:5001"
