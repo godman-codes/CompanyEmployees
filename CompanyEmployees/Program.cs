@@ -10,6 +10,7 @@ using NLog;
 using Service.DataShaping;
 using Shared.DataTransferObjects;
 using CompanyEmployees.Utility;
+using AspNetCoreRateLimit;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -45,7 +46,11 @@ builder.Services.ConfigureVersioning();
 builder.Services.ConfigureResponseCaching();
 // caching validation
 builder.Services.ConfigureHttpCacheHeaders();
-
+// rate limiting cache 
+builder.Services.AddMemoryCache();
+// rate limiting 
+builder.Services.ConfigureRateLimitingOptions();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<IEmployeeLinks, EmployeeLinks>();
@@ -119,6 +124,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
     ForwardedHeaders = ForwardedHeaders.All
 });
 
+// adding rate limiting it to the request pipeline
+app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
 // cache config cache store
 app.UseResponseCaching();
