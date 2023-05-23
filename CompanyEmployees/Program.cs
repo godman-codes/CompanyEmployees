@@ -52,6 +52,9 @@ builder.Services.AddMemoryCache();
 builder.Services.ConfigureRateLimitingOptions();
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddAuthentication();
+builder.Services.ConfigureIdentity();
+
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<IEmployeeLinks, EmployeeLinks>();
 
@@ -131,7 +134,7 @@ app.UseCors("CorsPolicy");
 app.UseResponseCaching();
 // cache validation
 app.UseHttpCacheHeaders();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

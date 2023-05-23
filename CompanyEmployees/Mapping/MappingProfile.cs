@@ -23,6 +23,7 @@ namespace CompanyEmployees.Mapping
                //.ForAllMembers(opt => opt.Condition((src, dest, srcMember) => srcMember != null));
             CreateMap<EmployeeForUpdateDto, Employee>().ReverseMap();
             //CreateMap<CompanyForUpdateDto, Company>()
+            CreateMap<UserForRegistrationDto, User>();
 
         }
     }
