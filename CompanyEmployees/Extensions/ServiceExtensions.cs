@@ -7,11 +7,17 @@ using Repository;
 using Service;
 using Service.Contracts;
 using Microsoft.AspNetCore.Mvc.Versioning;
-using CompanyEmployees.Presentation.Controllers;
 using Marvin.Cache.Headers;
 using AspNetCoreRateLimit;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using System.Linq.Dynamic.Core.Tokenizer;
+using Newtonsoft.Json.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System;
 
 namespace CompanyEmployees.Extensions
 {
@@ -161,6 +167,33 @@ namespace CompanyEmployees.Extensions
             })
                 .AddEntityFrameworkStores<RepositoryContext>()
                 .AddDefaultTokenProviders(); 
+        }
+        public static void ConfigureJWT(this IServiceCollection services,
+            IConfiguration configuration) 
+        {
+            var jwtSettings = configuration.GetSection("JwtSettings"); 
+            var secretKey = Environment.GetEnvironmentVariable("SECRET");
+            services.AddAuthentication(opt => 
+            {
+                opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options => 
+            {
+                options.TokenValidationParameters = new TokenValidationParameters 
+                {
+                    // The issuer is the actual server that created the token (ValidateIssuer=true)
+                    ValidateIssuer = true,
+                    //The receiver of the token is a valid recipient(ValidateAudience = true)
+                    ValidateAudience = true,
+                    //The token has not expired(ValidateLifetime = true)
+                    ValidateLifetime = true,
+                    //The signing key is valid and is trusted by the server(ValidateIssuerSigningKey = true)
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["validIssuer"], 
+                    ValidAudience = jwtSettings["validAudience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) 
+                }; 
+            });
         }
     }
 }
