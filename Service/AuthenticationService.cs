@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Contracts;
+using Entities.ConfigurationModels;
 using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
@@ -19,6 +20,7 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
+        private readonly JwtConfiguration _jwtConfiguration;
         private readonly IConfiguration _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
 
@@ -35,6 +37,8 @@ namespace Service
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
+            _jwtConfiguration = new JwtConfiguration();
+            _configuration.Bind(_jwtConfiguration.Section, _jwtConfiguration);
             _roleManager = roleManager;
         }
 
@@ -142,14 +146,13 @@ namespace Service
             List<Claim> claims)
         {
             // Get the JWT settings from the configuration
-            var jwtSettings = _configuration.GetSection("JwtSettings");
 
             // Create a new JWT security token with the specified options
             var tokenOptions = new JwtSecurityToken(
-                issuer: jwtSettings["validIssuer"],
-                audience: jwtSettings["validAudience"],
+                issuer: _jwtConfiguration.ValidIssuer,
+                audience: _jwtConfiguration.ValidAudience,
                 claims: claims,
-                expires: DateTime.Now.AddMinutes(Convert.ToDouble(jwtSettings["expires"])),
+                expires: DateTime.Now.AddMinutes(Convert.ToDouble(_jwtConfiguration.Expires)),
                 signingCredentials: signingCredentials
             );
 
@@ -168,8 +171,6 @@ namespace Service
 
         private ClaimsPrincipal GetPrincipalFromExpiredToken(string token)
         {
-            // Retrieve JwtSettings from configuration
-            var jwtSettings = _configuration.GetSection("JwtSettings");
 
             // Set up token validation parameters
             var tokenValidationParameters = new TokenValidationParameters
@@ -178,9 +179,9 @@ namespace Service
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
-                ValidateLifetime = true,
-                ValidIssuer = jwtSettings["validIssuer"],
-                ValidAudience = jwtSettings["validAudience"]
+                ValidateLifetime = false,
+                ValidIssuer = _jwtConfiguration.ValidIssuer,
+                ValidAudience = _jwtConfiguration.ValidAudience
             };
 
             // Create a new JwtSecurityTokenHandler
@@ -205,7 +206,7 @@ namespace Service
 
         public async Task<TokenDto> RefreshToken(TokenDto tokenDto)
         {
-            var principal = GetPrincipalFromExpiredToken(tokenDto.AccesToken);
+            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
 
             var user = await _userManager.FindByNameAsync(principal.Identity.Name);
             if (user == null || user.RefreshToken != tokenDto.RefreshToken ||

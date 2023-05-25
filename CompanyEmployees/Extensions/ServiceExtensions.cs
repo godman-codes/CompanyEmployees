@@ -14,10 +14,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
-using System.Linq.Dynamic.Core.Tokenizer;
-using Newtonsoft.Json.Linq;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System;
+using Entities.ConfigurationModels;
 
 namespace CompanyEmployees.Extensions
 {
@@ -171,7 +168,10 @@ namespace CompanyEmployees.Extensions
         public static void ConfigureJWT(this IServiceCollection services,
             IConfiguration configuration) 
         {
-            var jwtSettings = configuration.GetSection("JwtSettings"); 
+            var jwtConfiguration = new JwtConfiguration();
+
+            configuration.Bind(jwtConfiguration.Section, jwtConfiguration);
+
             var secretKey = Environment.GetEnvironmentVariable("SECRET");
             services.AddAuthentication(opt => 
             {
@@ -189,8 +189,8 @@ namespace CompanyEmployees.Extensions
                     ValidateLifetime = true,
                     //The signing key is valid and is trusted by the server(ValidateIssuerSigningKey = true)
                     ValidateIssuerSigningKey = true,
-                    ValidIssuer = jwtSettings["validIssuer"], 
-                    ValidAudience = jwtSettings["validAudience"],
+                    ValidIssuer = jwtConfiguration.ValidIssuer, 
+                    ValidAudience = jwtConfiguration.ValidAudience,
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)) 
                 }; 
             });
