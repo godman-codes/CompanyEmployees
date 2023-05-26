@@ -55,6 +55,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddAuthentication();
 builder.Services.ConfigureIdentity();
 builder.Services.ConfigureJWT(builder.Configuration);
+// IOptions
+builder.Services.AddJwtConfiguration(builder.Configuration);
 
 builder.Services.AddScoped<ValidateMediaTypeAttribute>();
 builder.Services.AddScoped<IEmployeeLinks, EmployeeLinks>();
@@ -106,11 +108,15 @@ builder.Services.AddControllers(config =>
     .AddApplicationPart(typeof(CompanyEmployees.Presentation.AssemblyReference).Assembly);
 
 builder.Services.AddCustomMediaTypes();
+builder.Services.ConfigureSwagger();
+
+
 var app = builder.Build();
 
 // This must be done before the builder.Build method.
 // Reference UACWA pg 72.
 var logger = app.Services.GetRequiredService<ILoggerManager>();
+
 app.ConfigureExceptionHandler(logger);
 
 if (app.Environment.IsProduction())
@@ -139,5 +145,11 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.UseSwagger();
+app.UseSwaggerUI(s =>
+{
+    s.SwaggerEndpoint("/swagger/v1/swagger.json", "Code Maze API v1");
+    s.SwaggerEndpoint("/swagger/v2/swagger.json", "Code Maze API v2"); 
+});
 
 app.Run();

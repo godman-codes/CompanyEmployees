@@ -5,6 +5,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -21,7 +22,7 @@ namespace Service
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
         private readonly JwtConfiguration _jwtConfiguration;
-        private readonly IConfiguration _configuration;
+        private readonly IOptions<JwtConfiguration> _configuration;
         private readonly RoleManager<IdentityRole> _roleManager;
 
         private User? _user;
@@ -31,14 +32,13 @@ namespace Service
             IMapper mapper,
             UserManager<User> userManager,
             RoleManager<IdentityRole> roleManager,
-            IConfiguration configuration)
+            IOptions<JwtConfiguration> configuration)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
-            _jwtConfiguration = new JwtConfiguration();
-            _configuration.Bind(_jwtConfiguration.Section, _jwtConfiguration);
+            _jwtConfiguration = _configuration.Value;
             _roleManager = roleManager;
         }
 
